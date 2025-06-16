@@ -2,13 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Memo } from './entities/Memo.entity';
 import { CreateMemoDto } from './dto/create-memo.dto';
 import { UpdateMemoDto } from './dto/update-memo.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class MemoService {
+    constructor(
+        @InjectRepository(Memo)
+        private memoRepository: Repository<Memo>, //hack : type을 명시해주는 이유를 모르겠음
+    ){}
     private memos:Memo[] = [];
 
-    getAll():Memo[]{
-        return this.memos;
+    getAll(): Promise<Memo[]>{
+        return this.memoRepository.find();
     }
 
     getOne(id:number):Memo{
