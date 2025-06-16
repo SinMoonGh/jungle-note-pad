@@ -34,10 +34,7 @@ export class MemoService {
         await this.memoRepository.save(memo);
     }
 
-    // update(id:number, memoData:UpdateMemoDto):boolean{
-    //     const memo = this.getOne(id);
-    //     this.deleteOne(id);
-    //     this.memos.push({...memo, ...memoData});
-    //     return true;
-    // }
+    async update(id:number, memoData:UpdateMemoDto):Promise<void>{
+        await this.memoRepository.update({id}, memoData);
+    }
 }
