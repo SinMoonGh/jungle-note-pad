@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Memo } from './entities/Memo.entity';
+import { CreateMemoDto } from './dto/create-memo.dto';
+import { UpdateMemoDto } from './dto/update-memo.dto';
 
 @Injectable()
 export class MemoService {
@@ -23,7 +25,7 @@ export class MemoService {
         return true;
     }
 
-    create(memoData):boolean{
+    create(memoData:CreateMemoDto):boolean{
         this.memos.push({
             id: this.memos.length + 1,
             ...memoData,
@@ -31,7 +33,7 @@ export class MemoService {
         return true;
     }
 
-    update(id:number, memoData):boolean{
+    update(id:number, memoData:UpdateMemoDto):boolean{
         const memo = this.getOne(id);
         this.deleteOne(id);
         this.memos.push({...memo, ...memoData});
