@@ -1,12 +1,12 @@
-import { IsDate, IsNumber, IsOptional, IsString } from "class-validator"
+import { IsDate, IsDateString, IsNumber, IsOptional, IsString } from "class-validator"
 
 export class CreateMemoDto{
     @IsString()
     readonly title: string
 
-    @IsNumber()
+    @IsString()
     readonly description: string
 
-    @IsDate()
+    @IsDateString()
     readonly createDate: Date
 }
