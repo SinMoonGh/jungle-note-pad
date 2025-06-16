@@ -11,7 +11,6 @@ export class MemoService {
         @InjectRepository(Memo)
         private memoRepository: Repository<Memo>, //hack : type을 명시해주는 이유를 모르겠음
     ){}
-    private memos:Memo[] = [];
 
     getAll(): Promise<Memo[]>{
         return this.memoRepository.find();
