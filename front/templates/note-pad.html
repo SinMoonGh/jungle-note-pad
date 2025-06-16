@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>    
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous" />
+
+    <!-- 폰트 관련 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Noto+Sans+KR:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <!-- 아이콘 관련 -->
+    <script defer src="https://use.fontawesome.com/releases/v6.4.0/js/all.js"></script>
+    
+    <style>
+        .container {
+            width: 50%;
+        }
+
+        h1 {
+            font-family: 'Gamja Flower', cursive;
+        }
+
+        .form-control::placeholder {
+            font-family: 'Gamja Flower', cursive;
+        }
+
+        .btn {
+            font-family: 'Gamja Flower', cursive;
+        }
+
+        .card-title {
+            font-family: 'Gamja Flower', cursive;
+            font-size: 21px;
+        }
+
+        .card-text {
+            font-family: 'Gamja Flower', cursive;
+            font-size: 21px;
+        }
+
+        #memo-create-form {
+            width: 70%;
+        }
+    </style>
+
+    <title>크래프톤 정글 | 메모장 2.0</title>
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4">나홀로 메모장 <span class="badge-secondary">ver2.0</span></h1>
+
+            <div id="memo-create-form">
+                <div class="form-group">                    
+                    <input type="text" class="form-control" id="memo-title" placeholder="제목을 입력하세요.">
+                </div>
+                <div class="form-group">                    
+                    <textarea class="form-control" id="memo-content" placeholder="내용을 입력하세요."></textarea>
+                </div>
+                <button id="memo-save-button" type="submit" class="btn btn-primary" onclick="memoSave()">저장하기</button>
+            </div>
+        </div>        
+
+        <div id="card-list" class="card-columns"></div>
+    </div>
+
+    <!-- 부트스트랩 관련 스크립트 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+        crossorigin="anonymous"></script>
+    
+    <script>
+        const sortMode = {
+            'likes': 'likes',
+        }
+
+        $(document).ready(function () {    
+            memoList();
+        });
+
+        function memoInit() {
+            $('#memo-title').val('');
+            $('#memo-content').val('');
+        }
+
+        function memoSave() {
+            let title = $('#memo-title').val();
+            let content = $('#memo-content').val();
+
+            if (title === '' || content === '') {
+                alert('제목과 내용을 입력해주세요.');
+                return;
+            }
+
+            $.ajax({
+                url: '/api/save',
+                type: 'POST',
+                data: {
+                    title_give: title,
+                    content_give: content
+                },
+                success: function (response) {
+                    if (response.result === 'success') {
+                        alert('메모 저장 완료');
+                        memoInit();
+                        memoList();
+                    } else {
+                        alert('메모 저장 실패');
+                    }
+                }
+            });
+        }
+
+        function memoList() {    
+            $('#card-list').empty();
+
+            $.ajax({
+                url: '/api/memos',
+                type: 'GET',
+                data: {
+                    sort_give: sortMode.likes
+                },
+                success: function (response) {
+                    for (let i = 0; i < response.memos.length; i++) {
+                        let memo = response.memos[i];
+
+                        let memoHtml = `
+                            <div class="card" id="card-${i}">     
+                                <div class="card-body">
+                                    <h5 class="card-title">${memo.title}</h5>
+                                    <p class="card-text">${memo.content}</p>
+                                    <p class="card-likes"><i class="fa-regular fa-thumbs-up"></i> ${memo.likes}</p>            
+                                    <button onclick="memoEdit('${memo._id}', ${i})" type="button" class="btn btn-info edit-button">수정</button>
+                                    <button onclick="memoDelete('${memo._id}')" type="button" class="btn btn-danger delete-button">삭제</button>
+                                    <button onclick="memoLike('${memo._id}')" type="button" class="btn btn-primary link-like"><i class="fas fa-thumbs-up"></i> 좋아요</button>
+                                </div>
+                            </div>
+                        `;
+                        $('#card-list').append(memoHtml);
+                    }
+                }
+            });
+        }
+
+        function memoDelete(id) {
+            $.ajax({
+                url: '/api/delete',
+                type: 'POST',
+                data: {
+                    id_give: id
+                },
+                success: function (response) {
+                    if (response.result === 'success') {
+                        alert('메모 삭제 완료');
+                        memoList();
+                    } else {
+                        alert('메모 삭제 실패');
+                    }
+                }
+            });
+        }
+
+        function memoUpdate(id) {    
+            let newTitle = $('.new-title').val();
+            let newContent = $('.new-text').val();
+            
+            if (newTitle === '' || newContent === '') {
+                alert('제목과 내용을 입력해주세요.');
+                return;
+            }
+
+            $.ajax({
+                url: '/api/update',
+                type: 'POST',
+                data: {
+                    id_give: id,
+                    new_title_give: newTitle,
+                    new_content_give: newContent
+                },
+                success: function (response) {
+                    if (response.result === 'success') {
+                        alert('메모 수정 완료');
+                        memoList();
+                    } else {
+                        alert('메모 수정 실패');
+                    }
+                }
+            });
+        }
+
+        function memoEdit(id, index) {
+            $(`#card-${index} .card-body`).empty();
+            $(`#card-${index} .card-body`).append(`
+                <div class="form-group">
+                    <input type="text" class="form-control new-title" placeholder="제목을 입력하세요.">
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control new-text" placeholder="내용을 입력하세요."></textarea>
+                </div>
+                <button onclick="memoUpdate('${id}')" type="button" class="btn btn-success save-button">저장</button>
+            `);
+        }
+
+        function memoLike(id) {
+            $.ajax({
+                url: '/api/like',
+                type: 'POST',
+                data: {
+                    id_give: id,
+                    sort_give: sortMode.likes
+                },
+                success: function (response) {
+                    if (response.result === 'success') {                
+                        memoList();
+                    } else {
+                        alert('좋아요 실패');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
