@@ -29,13 +29,10 @@ export class MemoService {
         await this.memoRepository.delete(id);
     }
 
-    // create(memoData:CreateMemoDto):boolean{
-    //     this.memos.push({
-    //         id: this.memos.length + 1,
-    //         ...memoData,
-    //     })
-    //     return true;
-    // }
+    async create(memoData:CreateMemoDto):Promise<void>{
+        const memo = this.memoRepository.create(memoData);
+        await this.memoRepository.save(memo);
+    }
 
     // update(id:number, memoData:UpdateMemoDto):boolean{
     //     const memo = this.getOne(id);
