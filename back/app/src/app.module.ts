@@ -1,12 +1,20 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MemoController } from './memo/memo.controller';
-import { MemoService } from './memo/memo.service';
 import { MemoModule } from './memo/memo.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Memo } from './memo/entities/Memo.entity';
 
 @Module({
-  imports: [MemoModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',      
+      database: 'memo.db',
+      entities: [Memo],
+      synchronize: true,
+    }),
+    MemoModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
