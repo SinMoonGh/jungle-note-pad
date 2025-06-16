@@ -17,32 +17,30 @@ export class MemoService {
         return this.memoRepository.find();
     }
 
-    getOne(id:number):Memo{
-        const memo = this.memos.find(movie => movie.id === +id);
+    getOne(id:number):Promise<Memo | null>{
+        const memo = this.memoRepository.findOneBy({id});
         if(!memo){
             throw new NotFoundException(`Movie ID 존재하지 않음 : ${id}`);
         }
         return memo;
     }
 
-    deleteOne(id:number):boolean{
-        this.getOne(id);
-        this.memos.filter(memo => memo.id !== +id);
-        return true;
+    async deleteOne(id:number):Promise<void>{
+        await this.memoRepository.delete(id);
     }
 
-    create(memoData:CreateMemoDto):boolean{
-        this.memos.push({
-            id: this.memos.length + 1,
-            ...memoData,
-        })
-        return true;
-    }
+    // create(memoData:CreateMemoDto):boolean{
+    //     this.memos.push({
+    //         id: this.memos.length + 1,
+    //         ...memoData,
+    //     })
+    //     return true;
+    // }
 
-    update(id:number, memoData:UpdateMemoDto):boolean{
-        const memo = this.getOne(id);
-        this.deleteOne(id);
-        this.memos.push({...memo, ...memoData});
-        return true;
-    }
+    // update(id:number, memoData:UpdateMemoDto):boolean{
+    //     const memo = this.getOne(id);
+    //     this.deleteOne(id);
+    //     this.memos.push({...memo, ...memoData});
+    //     return true;
+    // }
 }
