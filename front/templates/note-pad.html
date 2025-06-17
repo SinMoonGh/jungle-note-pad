@@ -104,12 +104,14 @@
             }
 
             $.ajax({
-                url: '/api/save',
+                url: 'http://localhost:3000/memo/',
                 type: 'POST',
-                data: {
-                    title_give: title,
-                    content_give: content
-                },
+                data: JSON.stringify({
+                    title: title,
+                    description: content,
+                    createDate: new Date().toISOString()
+                }),
+                contentType: 'application/json',
                 success: function (response) {
                     if (response.result === 'success') {
                         alert('메모 저장 완료');
@@ -126,24 +128,20 @@
             $('#card-list').empty();
 
             $.ajax({
-                url: '/api/memos',
+                url: 'http://localhost:3000/memo/',
                 type: 'GET',
-                data: {
-                    sort_give: sortMode.likes
-                },
+                contentType: 'application/json',
                 success: function (response) {
-                    for (let i = 0; i < response.memos.length; i++) {
-                        let memo = response.memos[i];
+                    for (let i = 0; i < response.length; i++) {
+                        let memo = response[i];
 
                         let memoHtml = `
                             <div class="card" id="card-${i}">     
                                 <div class="card-body">
                                     <h5 class="card-title">${memo.title}</h5>
-                                    <p class="card-text">${memo.content}</p>
-                                    <p class="card-likes"><i class="fa-regular fa-thumbs-up"></i> ${memo.likes}</p>            
+                                    <p class="card-text">${memo.description}</p>            
                                     <button onclick="memoEdit('${memo._id}', ${i})" type="button" class="btn btn-info edit-button">수정</button>
                                     <button onclick="memoDelete('${memo._id}')" type="button" class="btn btn-danger delete-button">삭제</button>
-                                    <button onclick="memoLike('${memo._id}')" type="button" class="btn btn-primary link-like"><i class="fas fa-thumbs-up"></i> 좋아요</button>
                                 </div>
                             </div>
                         `;
@@ -155,11 +153,8 @@
 
         function memoDelete(id) {
             $.ajax({
-                url: '/api/delete',
-                type: 'POST',
-                data: {
-                    id_give: id
-                },
+                url: 'http://localhost:3000/memo/' + id,
+                type: 'DELETE',
                 success: function (response) {
                     if (response.result === 'success') {
                         alert('메모 삭제 완료');
@@ -181,13 +176,14 @@
             }
 
             $.ajax({
-                url: '/api/update',
-                type: 'POST',
-                data: {
-                    id_give: id,
-                    new_title_give: newTitle,
-                    new_content_give: newContent
-                },
+                url: 'http://localhost:3000/memo/' + id,
+                type: 'PATCH',
+                data: JSON.stringify({
+                    title: newTitle,
+                    description: newContent,
+                    createDate: new Date().toISOString()
+                }),
+                contentType: 'application/json',
                 success: function (response) {
                     if (response.result === 'success') {
                         alert('메모 수정 완료');
